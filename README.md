@@ -35,3 +35,9 @@ You need the following to be installed on your machine before running this pre-c
 - [yq v4.6](https://github.com/mikefarah/yq)
 - [kustomize v4.1](https://github.com/kubernetes-sigs/kustomize)
 - [kubeconform v0.4.12](https://github.com/yannh/kubeconform)
+
+Also make sure to have the git hook script pre-push installed
+
+```bash
+pre-commit install -t pre-push
+```
