@@ -1,5 +1,5 @@
 - id: validate-flux
-  name: Validate Flux
+  name: validate Flux and Kustomize manifests
   description: "A script to validate Flux custom resources and Kustomize overlays."
   entry: ./scripts/validate-flux.sh
   language: script
