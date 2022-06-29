@@ -2,20 +2,6 @@
 
 This repository contains JOSA's custom pre-commit hooks.
 
-___
-
-## Using pre-commit-hooks with pre-commit
-
-Add this to your .pre-commit-config.yaml:
-
-```yaml
--   repo: https://github.com/jordanopensource/pre-commit-hooks
-    rev: v0.1.0  # Use the ref you want to point at
-    hooks:
-    -   id: validate-flux
-    # -   id: ...
-```
-
 ## Available Hooks
 
 - [Validate Flux](#validate-flux) - A script to validate Flux custom resources and Kustomize overlays.
@@ -36,8 +22,22 @@ You need the following to be installed on your machine before running this pre-c
 - [kustomize v4.1](https://github.com/kubernetes-sigs/kustomize)
 - [kubeconform v0.4.12](https://github.com/yannh/kubeconform)
 
-Also make sure to have the git hook script pre-push installed
+### Usage
+
+Add this to your .pre-commit-config.yaml:
+
+```yaml
+-   repo: https://github.com/jordanopensource/pre-commit-hooks
+    rev: v0.1.0  # Use the ref you want to point at
+    hooks:
+    -   id: validate-flux
+    # -   id: ...
+```
+
+After the configuration is added, you'll need to run
 
 ```bash
 pre-commit install -t pre-push
 ```
+
+___
