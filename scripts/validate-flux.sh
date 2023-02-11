@@ -5,7 +5,7 @@
 # This script is meant to be run locally and in CI before the changes
 # are merged on the main branch that's synced by Flux.
 
-# Copyright 2020 The Flux authors. All rights reserved.
+# Copyright 2022 The Flux authors. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,22 +24,9 @@
 # the branch synced by Flux in-cluster.
 
 # Prerequisites
-# - yq v4.6
-# - kustomize v4.1
-# - kubeconform v0.4.12
-
-type yq >/dev/null 2>&1 || {
-  echo >&2 "yq is not installed. Please install it to be able to run the script. Aborting."
-  exit 1
-}
-type kustomize >/dev/null 2>&1 || {
-  echo >&2 "kustomize is not installed. Please install it to be able to run the script. Aborting."
-  exit 1
-}
-type kubeconform >/dev/null 2>&1 || {
-  echo >&2 " kubeconform is not installed. Please install it to be able to run the script. Aborting."
-  exit 1
-}
+# - yq v4.30
+# - kustomize v4.5
+# - kubeconform v0.5.0
 
 set -o errexit
 
@@ -47,19 +34,21 @@ echo "INFO - Downloading Flux OpenAPI schemas"
 mkdir -p /tmp/flux-crd-schemas/master-standalone-strict
 curl -sL https://github.com/fluxcd/flux2/releases/latest/download/crd-schemas.tar.gz | tar zxf - -C /tmp/flux-crd-schemas/master-standalone-strict
 
-find . -type f -name '*.yaml' -print0 | while IFS= read -r -d $'\0' file; do
-  echo "INFO - Validating $file"
-  yq e 'true' "$file" >/dev/null
+find . -type f -name '*.yaml' -print0 | while IFS= read -r -d $'\0' file;
+  do
+    echo "INFO - Validating $file"
+    yq e 'true' "$file" > /dev/null
 done
 
 kubeconform_config=("-strict" "-ignore-missing-schemas" "-schema-location" "default" "-schema-location" "/tmp/flux-crd-schemas" "-verbose")
 
 echo "INFO - Validating clusters"
-find ./clusters -maxdepth 2 -type f -name '*.yaml' -print0 | while IFS= read -r -d $'\0' file; do
-  kubeconform "${kubeconform_config[@]}" "${file}"
-  if [[ ${PIPESTATUS[0]} != 0 ]]; then
-    exit 1
-  fi
+find ./clusters -maxdepth 2 -type f -name '*.yaml' -print0 | while IFS= read -r -d $'\0' file;
+  do
+    kubeconform "${kubeconform_config[@]}" "${file}"
+    if [[ ${PIPESTATUS[0]} != 0 ]]; then
+      exit 1
+    fi
 done
 
 # mirror kustomize-controller build options
@@ -67,11 +56,12 @@ kustomize_flags=("--load-restrictor=LoadRestrictionsNone")
 kustomize_config="kustomization.yaml"
 
 echo "INFO - Validating kustomize overlays"
-find . -type f -name $kustomize_config -print0 | while IFS= read -r -d $'\0' file; do
-  echo "INFO - Validating kustomization ${file/%$kustomize_config/}"
-  kustomize build "${file/%$kustomize_config/}" "${kustomize_flags[@]}" |
-    kubeconform "${kubeconform_config[@]}"
-  if [[ ${PIPESTATUS[0]} != 0 ]]; then
-    exit 1
-  fi
+find . -type f -name $kustomize_config -print0 | while IFS= read -r -d $'\0' file;
+  do
+    echo "INFO - Validating kustomization ${file/%$kustomize_config}"
+    kustomize build "${file/%$kustomize_config}" "${kustomize_flags[@]}" | \
+      kubeconform "${kubeconform_config[@]}"
+    if [[ ${PIPESTATUS[0]} != 0 ]]; then
+      exit 1
+    fi
 done
