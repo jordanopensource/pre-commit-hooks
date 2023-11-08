@@ -7,6 +7,8 @@ This repository contains JOSA's custom pre-commit hooks.
 - [Validate Flux](#validate-flux) - A script to validate Flux custom resources and Kustomize overlays.
 - [Validate Eslint](#validate-eslint) - A script to validate eslint rules on Javascript and Typescript files.
 
+- [Run Samplr](#run-samplr) - A script to generate sample files.
+
 ___
 
 ## validate-flux
@@ -75,6 +77,36 @@ After the configuration is added, you'll need to run
 
 ```bash
 pre-commit install -t pre-commit
+```
+
+___
+
+## run-samplr
+
+This script runs the command [samplr](https://github.com/unmultimedio/samplr) to generate `.sample` files in your repo. Please refer to the [config](./scripts/samplr/.samplr.yml) in this repo to understand which files are supported.
+
+### Prerequisites
+
+You need the following to be installed on your machine before running this pre-commit script.
+
+- [samplr v0.2.1](https://github.com/unmultimedio/samplr/releases/tag/v0.2.1)
+
+### Usage
+
+Add this to your .pre-commit-config.yaml:
+
+```yaml
+-   repo: https://github.com/jordanopensource/pre-commit-hooks
+    rev: v0.1.0  # Use the ref you want to point at
+    hooks:
+    -   id: run-samplr
+    # -   id: ...
+```
+
+After the configuration is added, you'll need to run
+
+```bash
+pre-commit install -t pre-push
 ```
 
 ___
