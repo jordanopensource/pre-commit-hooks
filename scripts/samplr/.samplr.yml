@@ -15,6 +15,5 @@ excludes:
   - ^node-modules # Dependencies shouldn't be sampled
 includes:
   - ^config # Matches files like ./config/setup.yml or ./configuration/script.sh 
-  - \.yml$ # Matches all .yml files in the project
   - Dockerfile # Matches all Dockerfile in the project
   - .env # Matches all env files in the project
