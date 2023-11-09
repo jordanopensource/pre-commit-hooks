@@ -2,7 +2,6 @@
 
 # CREDITS: https://gist.github.com/linhmtran168/2286aeafe747e78f53bf
 # MODIFIED: t.hamoudi
-# MAINTAINED: admin@josa.ngo
 
 STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E "(.js$|.jsx$|.ts$|.tsx$|.vue$)")
 

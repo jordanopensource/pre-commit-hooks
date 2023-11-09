@@ -5,10 +5,6 @@
 # https://github.com/unmultimedio/samplr#5-set-up-a-githook-optional
 ########## MODIFIED: ##########
 # t.hamoudi
-######### MAINTAINED: #########
-#  admin@josa.ngo
-###############################
-
 ###############################
 # Prerequisites
 # - samplr v0.2.1
@@ -20,6 +16,6 @@
 set -e
 
 # Run samplr command to generate sample files
-samplr
+samplr --config ./.samplr.yml
 # List all changed and not-ignored files, with a filename that matches with ".sample", and add it to the commit
 git ls-files -mo --exclude-standard | grep "\.sample" | xargs git add

@@ -106,7 +106,7 @@ Add this to your .pre-commit-config.yaml:
 After the configuration is added, you'll need to run
 
 ```bash
-pre-commit install -t pre-push
+pre-commit install -t pre-commit
 ```
 
 ___
