@@ -5,13 +5,13 @@
   language: script
   stages: [push]
 - id: validate-eslint
-  name: Validate eslint for Javascript and Typescript based files
+  name: validate eslint
   description: "A script to validate eslint rules on Javascript and Typescript files."
   entry: ./scripts/validate-eslint.sh
   language: script
   stages: [commit]
 - id: run-samplr
-  name: Runs the command line samplr to generate sample files
+  name: generate sample .env files
   description: "A script to generate sample files."
   entry: ./scripts/samplr/run-samplr.sh
   language: script
