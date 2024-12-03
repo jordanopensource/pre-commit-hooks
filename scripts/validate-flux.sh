@@ -24,6 +24,27 @@
 # - kustomize v5.0
 # - kubeconform v0.6
 
+# Function to check if a package is installed
+check_package() {
+  if ! command -v $1 &>/dev/null; then
+    echo "Package $1 is not installed."
+    if [ "$1" == "yq" ]; then
+      echo "You can download it from the GitHub page: https://github.com/mikefarah/yq?tab=readme-ov-file#install"
+    elif [ "$1" == "kustomize" ]; then
+      echo "You can download it from the GitHub page: https://github.com/kubernetes-sigs/kustomize"
+    elif [ "$1" == "kubeconform" ]; then
+      echo "You can download it from the GitHub page: https://github.com/yannh/kubeconform"
+    else
+      echo "Please install $1 and try again."
+    fi
+    exit 1
+  fi
+}
+
+check_package "yq"
+check_package "kustomize"
+check_package "kubeconform"
+
 set -o errexit
 set -o pipefail
 
@@ -39,28 +60,39 @@ echo "INFO - Downloading Flux OpenAPI schemas"
 mkdir -p /tmp/flux-crd-schemas/master-standalone-strict
 curl -sL https://github.com/fluxcd/flux2/releases/latest/download/crd-schemas.tar.gz | tar zxf - -C /tmp/flux-crd-schemas/master-standalone-strict
 
-find . -type f -name '*.yaml' -print0 | while IFS= read -r -d $'\0' file;
-  do
+fileList=($(git diff --diff-filter=d --cached --name-only | grep ".*\.ya\?ml$"))
+
+echo "Files changed:"
+for file in "${fileList[@]}"; do
+  echo "$file"
+  if [ ${#fileList} -gt 0 ]; then
     echo "INFO - Validating $file"
-    yq e 'true' "$file" > /dev/null
+    yq e 'true' "$file" >/dev/null
+  else
+    echo "No changes found. Skipping."
+  fi
 done
 
 echo "INFO - Validating clusters"
-find ./clusters -maxdepth 2 -type f -name '*.yaml' -print0 | while IFS= read -r -d $'\0' file;
-  do
-    kubeconform "${kubeconform_flags[@]}" "${kubeconform_config[@]}" "${file}"
-    if [[ ${PIPESTATUS[0]} != 0 ]]; then
-      exit 1
-    fi
+clusterList=($(git diff --diff-filter=d --cached --name-only ./clusters | grep ".*\.ya\?ml$"))
+for file in "${clusterList[@]}"; do
+  echo "INFO - Validating ${file}"
+  kubeconform "${kubeconform_flags[@]}" "${kubeconform_config[@]}" "${file}"
+  if [[ ${PIPESTATUS[0]} != 0 ]]; then
+    exit 1
+  fi
 done
 
 echo "INFO - Validating kustomize overlays"
-find . -type f -name $kustomize_config -print0 | while IFS= read -r -d $'\0' file;
-  do
-    echo "INFO - Validating kustomization ${file/%$kustomize_config}"
-    kustomize build "${file/%$kustomize_config}" "${kustomize_flags[@]}" | \
+kustomizeList=($(git diff --diff-filter=d --cached --name-only | grep "$kustomize_config"))
+
+for file in "${kustomizeList[@]}"; do
+  if [[ "$file" == *"$kustomize_config" ]]; then
+    echo "INFO - Validating kustomization ${file/%$kustomize_config/}"
+    kustomize build "${file/%$kustomize_config/}" "${kustomize_flags[@]}" |
       kubeconform "${kubeconform_flags[@]}" "${kubeconform_config[@]}"
     if [[ ${PIPESTATUS[0]} != 0 ]]; then
       exit 1
     fi
+  fi
 done
