@@ -191,35 +191,35 @@ check_latest_schemas() {
 }
 
 print_initialization() {
-  echo "----------------------------------" 2>&1
-  echo "#############################################" 2>&1
-  echo "#                                           #" 2>&1
-  if [ $DEBUG -eq 1 ]; then
-    echo -e "# ${MAGENTA}Running validation checks in Debug mode${NC}   #" 2>&1
-  else
-    echo -e "# ${MAGENTA}Running validation checks in regular mode${NC} #" 2>&1
-  fi
-  echo "#                                           #" 2>&1
+  echo "----------------------------------"
   echo "#############################################"
-  echo -e "----------------------------------\n" 2>&1
+  echo "#                                           #"
+  if [ $DEBUG -eq 1 ]; then
+    echo -e "# ${MAGENTA}Running validation checks in Debug mode${NC}   #"
+  else
+    echo -e "# ${MAGENTA}Running validation checks in regular mode${NC} #"
+  fi
+  echo "#                                           #"
+  echo "#############################################"
+  echo -e "----------------------------------\n"
 }
 
 print_summary() {
 
-  echo -e "\n----------------------------------" 2>&1
-  echo "##################################" 2>&1
-  echo "#                                #" 2>&1
-  echo -e "# ${YELLOW}Validation Summary${NC}             #" 2>&1
-  echo "#                                #" 2>&1
-  echo -e "##################################\n" 2>&1
-  echo -e "Total YAML files validated: ${CYAN}$numberOfFilesChanged${NC}" 2>&1
-  echo -e "Validated Clusters: ${CYAN}$numberOfClusterFilesChanged${NC}" 2>&1
-  echo -e "Validated Kustomizations: ${CYAN}$numberOfKsFilesChanged${NC}\n" 2>&1
+  echo -e "\n----------------------------------"
+  echo "##################################"
+  echo "#                                #"
+  echo -e "# ${YELLOW}Validation Summary${NC}             #"
+  echo "#                                #"
+  echo -e "##################################\n"
+  echo -e "Total YAML files validated: ${CYAN}$numberOfFilesChanged${NC}"
+  echo -e "Validated Clusters: ${CYAN}$numberOfClusterFilesChanged${NC}"
+  echo -e "Validated Kustomizations: ${CYAN}$numberOfKsFilesChanged${NC}\n"
   if [[ ! $numberOfClustersChecksFailed -eq 0 || ! $numberOfKsChecksFailed -eq 0 ]]; then
-    echo -e "-------------------------\n" 2>&1
-    echo -e "Failed Clusters validation checks: ${RED}$numberOfClustersChecksFailed${NC}" 2>&1
-    echo -e "Failed Kustomizations checks: ${RED}$numberOfKsChecksFailed${NC}\n" 2>&1
-    echo "----------------------------------" 2>&1
+    echo -e "-------------------------\n"
+    echo -e "Failed Clusters validation checks: ${RED}$numberOfClustersChecksFailed${NC}"
+    echo -e "Failed Kustomizations checks: ${RED}$numberOfKsChecksFailed${NC}\n"
+    echo "----------------------------------"
     exit 1
   fi
   echo "----------------------------------"
