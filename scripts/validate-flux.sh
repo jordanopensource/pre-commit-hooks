@@ -24,14 +24,6 @@
 # - kustomize v5.0
 # - kubeconform v0.6
 
-##TODO:
-
-# Code readability
-# [ ] everything should be config via variables
-# [ ] add a flag to define the dir where the flux api download be set
-# [x] yq checks should always run
-# [x] add flags, --Summery of the files changed, number of passed and number of failed, --debug --log --type
-
 # General variables
 numberOfFilesChanged=0
 numberOfClusterFilesChanged=0
@@ -76,11 +68,7 @@ while [[ "$1" != "" ]]; do
     shift
     while [[ "$1" != "" && "$1" != -* ]]; do
       case $1 in
-      # files | f)
-      # validate_options+=("files")
-      # ;;
       clusters | ctx)
-        validate_options+=("files")
         validate_options+=("clusters")
         ;;
       kustomize | ks)
@@ -95,6 +83,7 @@ while [[ "$1" != "" ]]; do
       esac
       shift
     done
+    validate_options+=("files")
     ;;
   -d | --debug)
     DEBUG=1
@@ -159,7 +148,6 @@ get_git_diff_files() {
 handle_error() {
   local message="$1"
   echo -e "\n${RED}ERROR${NC} - ${message}"
-  # exit 1
 }
 
 ## Function: download_schemas
@@ -203,34 +191,36 @@ check_latest_schemas() {
 }
 
 print_initialization() {
-  echo "----------------------------------"
-  echo "#############################################"
-  echo "#                                           #"
+  echo "----------------------------------" 2>&1
+  echo "#############################################" 2>&1
+  echo "#                                           #" 2>&1
   if [ $DEBUG -eq 1 ]; then
-    echo -e "# ${MAGENTA}Running validation checks in Debug mode${NC}   #"
+    echo -e "# ${MAGENTA}Running validation checks in Debug mode${NC}   #" 2>&1
   else
-    echo -e "# ${MAGENTA}Running validation checks in regular mode${NC} #"
+    echo -e "# ${MAGENTA}Running validation checks in regular mode${NC} #" 2>&1
   fi
-  echo "#                                           #"
+  echo "#                                           #" 2>&1
   echo "#############################################"
-  echo -e "----------------------------------\n"
+  echo -e "----------------------------------\n" 2>&1
 }
 
 print_summary() {
 
-  echo -e "\n----------------------------------"
-  echo "##################################"
-  echo "#                                #"
-  echo -e "# ${YELLOW}Validation Summary${NC}             #"
-  echo "#                                #"
-  echo -e "##################################\n"
-  echo -e "Total YAML files validated: ${CYAN}$numberOfFilesChanged${NC}"
-  echo -e "Validated Clusters: ${CYAN}$numberOfClusterFilesChanged${NC}"
-  echo -e "Validated Kustomizations: ${CYAN}$numberOfKsFilesChanged${NC}\n"
+  echo -e "\n----------------------------------" 2>&1
+  echo "##################################" 2>&1
+  echo "#                                #" 2>&1
+  echo -e "# ${YELLOW}Validation Summary${NC}             #" 2>&1
+  echo "#                                #" 2>&1
+  echo -e "##################################\n" 2>&1
+  echo -e "Total YAML files validated: ${CYAN}$numberOfFilesChanged${NC}" 2>&1
+  echo -e "Validated Clusters: ${CYAN}$numberOfClusterFilesChanged${NC}" 2>&1
+  echo -e "Validated Kustomizations: ${CYAN}$numberOfKsFilesChanged${NC}\n" 2>&1
   if [[ ! $numberOfClustersChecksFailed -eq 0 || ! $numberOfKsChecksFailed -eq 0 ]]; then
-    echo -e "-------------------------\n"
-    echo -e "Failed Clusters validation checks: ${RED}$numberOfClustersChecksFailed${NC}"
-    echo -e "Failed Kustomizations checks: ${RED}$numberOfKsChecksFailed${NC}\n"
+    echo -e "-------------------------\n" 2>&1
+    echo -e "Failed Clusters validation checks: ${RED}$numberOfClustersChecksFailed${NC}" 2>&1
+    echo -e "Failed Kustomizations checks: ${RED}$numberOfKsChecksFailed${NC}\n" 2>&1
+    echo "----------------------------------" 2>&1
+    exit 1
   fi
   echo "----------------------------------"
 }
