@@ -72,7 +72,6 @@ while [[ "$1" != "" ]]; do
         validate_options+=("clusters")
         ;;
       kustomize | ks)
-        validate_options+=("files")
         validate_options+=("kustomize")
         ;;
       *)
@@ -83,7 +82,7 @@ while [[ "$1" != "" ]]; do
       esac
       shift
     done
-    validate_options+=("files")
+    validate_options+=("files") # always validate YAML files
     ;;
   -d | --debug)
     DEBUG=1
@@ -192,33 +191,25 @@ check_latest_schemas() {
 
 print_initialization() {
   echo "----------------------------------"
-  echo "#############################################"
-  echo "#                                           #"
   if [ $DEBUG -eq 1 ]; then
-    echo -e "# ${MAGENTA}Running validation checks in Debug mode${NC}   #"
+    echo -e "# ${MAGENTA}Running validation checks in Debug mode${NC}   "
   else
-    echo -e "# ${MAGENTA}Running validation checks in regular mode${NC} #"
+    echo -e "# ${MAGENTA}Running validation checks in Regular mode${NC} "
   fi
-  echo "#                                           #"
-  echo "#############################################"
-  echo -e "----------------------------------\n"
+  echo -e "----------------------------------"
 }
 
 print_summary() {
 
-  echo -e "\n----------------------------------"
-  echo "##################################"
-  echo "#                                #"
-  echo -e "# ${YELLOW}Validation Summary${NC}             #"
-  echo "#                                #"
-  echo -e "##################################\n"
+  echo -e "----------------------------------"
+  echo -e "# ${YELLOW}Validation Summary${NC}             "
   echo -e "Total YAML files validated: ${CYAN}$numberOfFilesChanged${NC}"
   echo -e "Validated Clusters: ${CYAN}$numberOfClusterFilesChanged${NC}"
-  echo -e "Validated Kustomizations: ${CYAN}$numberOfKsFilesChanged${NC}\n"
+  echo -e "Validated Kustomizations: ${CYAN}$numberOfKsFilesChanged${NC}"
   if [[ ! $numberOfClustersChecksFailed -eq 0 || ! $numberOfKsChecksFailed -eq 0 ]]; then
-    echo -e "-------------------------\n"
+    echo -e "-------------------------"
     echo -e "Failed Clusters validation checks: ${RED}$numberOfClustersChecksFailed${NC}"
-    echo -e "Failed Kustomizations checks: ${RED}$numberOfKsChecksFailed${NC}\n"
+    echo -e "Failed Kustomizations checks: ${RED}$numberOfKsChecksFailed${NC}"
     echo "----------------------------------"
     exit 1
   fi
@@ -236,10 +227,10 @@ print_summary() {
 # validate_files
 
 validate_files() {
-  fileList=($(get_git_diff_files "./" ".*\.ya\?ml$"))
+  mapfile -t fileList < <(get_git_diff_files "./" ".*\.ya\?ml$")
   if [ ${#fileList[@]} -eq 0 ]; then
-    [[ $DEBUG -eq 1 ]] && echo "No files to validate"
-    return 0
+    echo "No files to validate"
+    exit 0
   fi
   echo -n "VALIDATING YAML FILES ..." # validates the yaml convention,
   [[ $DEBUG -eq 1 ]] && echo -e "\n----------------------------------\n${YELLOW}Files changed:${NC}"
@@ -266,7 +257,7 @@ validate_clusters() {
 
   echo -n "VALIDATING CLUSTERS ..."
   [[ $DEBUG -eq 1 ]] && echo -e "\n${CYAN}INFO${NC} - Validating clusters"
-  clusterList=($(get_git_diff_files "./clusters" ".*\.ya\?ml$"))
+  mapfile -t clusterList < <(get_git_diff_files "./clusters" ".*\.ya\?ml$")
   for file in "${clusterList[@]}"; do
     local failed_checks
     [[ $DEBUG -eq 1 ]] && echo -e "${CYAN}INFO${NC} - Validating ${file}"
@@ -299,7 +290,7 @@ validate_clusters() {
 validate_kustomize() {
   echo -n "VALIDATING KUSTOMIZE ..."
   [[ $DEBUG -eq 1 ]] && echo -e "\n${CYAN}INFO${NC} - Validating kustomize overlays"
-  kustomizeList=($(get_git_diff_files "./" "$kustomize_config"))
+  mapfile -t kustomizeList < <(get_git_diff_files "./" "$kustomize_config")
   for file in "${kustomizeList[@]}"; do
     local failed_checks=0
     if [[ "$file" == *"$kustomize_config" ]]; then
