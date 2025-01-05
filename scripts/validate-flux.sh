@@ -48,7 +48,7 @@ show_help() {
   echo
   echo "Options:"
   echo "  --help, -h          Show this help message and exit"
-  echo "  --validate, -v      Validate specified items (ctx=clusters, ks=kustomize) -- NOTE: YAML file check will always run"
+  echo "  --validate, -v      Validate specified items (clstr=clusters, ks=kustomize) -- NOTE: YAML file check will always run"
   echo "  --debug, -d         Enable debug mode showing more information"
 }
 
@@ -68,7 +68,7 @@ while [[ "$1" != "" ]]; do
     shift
     while [[ "$1" != "" && "$1" != -* ]]; do
       case $1 in
-      clusters | ctx)
+      clusters | clstr)
         validate_options+=("clusters")
         ;;
       kustomize | ks)
