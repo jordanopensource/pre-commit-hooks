@@ -3,6 +3,7 @@
   description: "A script to validate Flux custom resources and Kustomize overlays."
   entry: ./scripts/validate-flux.sh
   language: script
+  pass_filenames: false
   stages: [push]
 - id: validate-eslint
   name: validate eslint
