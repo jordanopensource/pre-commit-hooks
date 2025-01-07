@@ -10,10 +10,10 @@
   description: "A script to validate eslint rules on Javascript and Typescript files."
   entry: ./scripts/validate-eslint.sh
   language: script
-  stages: [commit]
+  stages: ["pre-commit"]
 - id: run-samplr
   name: generate sample .env files
   description: "A script to generate sample files."
   entry: ./scripts/samplr/run-samplr.sh
   language: script
-  stages: [commit]
+  stages: ["pre-commit"]

@@ -227,7 +227,11 @@ print_summary() {
 # validate_files
 
 validate_files() {
-  mapfile -t fileList < <(get_git_diff_files "./" ".*\.ya\?ml$")
+  fileList=()
+  while IFS= read -r file; do
+    fileList+=("$file")
+  done < <(get_git_diff_files "./" ".*\.ya\?ml$")
+
   if [ ${#fileList[@]} -eq 0 ]; then
     echo "No files to validate"
     exit 0
@@ -257,7 +261,12 @@ validate_clusters() {
 
   echo -n "VALIDATING CLUSTERS ..."
   [[ $DEBUG -eq 1 ]] && echo -e "\n${CYAN}INFO${NC} - Validating clusters"
-  mapfile -t clusterList < <(get_git_diff_files "./clusters" ".*\.ya\?ml$")
+
+  clusterList=()
+  while IFS= read -r file; do
+    clusterList+=("$file")
+  done < <(get_git_diff_files "./clusters" ".*\.ya\?ml$")
+
   for file in "${clusterList[@]}"; do
     local failed_checks
     [[ $DEBUG -eq 1 ]] && echo -e "${CYAN}INFO${NC} - Validating ${file}"
@@ -290,7 +299,12 @@ validate_clusters() {
 validate_kustomize() {
   echo -n "VALIDATING KUSTOMIZE ..."
   [[ $DEBUG -eq 1 ]] && echo -e "\n${CYAN}INFO${NC} - Validating kustomize overlays"
-  mapfile -t kustomizeList < <(get_git_diff_files "./" "$kustomize_config")
+
+  kustomizeList=()
+  while IFS= read -r file; do
+    kustomizeList+=("$file")
+  done < <(get_git_diff_files "./" "$kustomize_config")
+
   for file in "${kustomizeList[@]}"; do
     local failed_checks=0
     if [[ "$file" == *"$kustomize_config" ]]; then
