@@ -4,7 +4,7 @@
   entry: ./scripts/validate-flux.sh
   language: script
   pass_filenames: false
-  stages: [push]
+  stages: ["pre-commit", "pre-push"]
 - id: validate-eslint
   name: validate eslint
   description: "A script to validate eslint rules on Javascript and Typescript files."
