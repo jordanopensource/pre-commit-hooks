@@ -36,8 +36,11 @@ else
     exit 1
 fi
 
-# Check for ESLint config files
-if [ -f "eslint.config.js" ] || [ -f ".eslintrc.js" ] || [ -f ".eslintrc.json" ] || [ -f ".eslintrc.yml" ] || [ -f ".eslintrc.yaml" ]; then
+# Check for ESLint config files (both new flat config and legacy formats)
+if [ -f "eslint.config.js" ] || [ -f "eslint.config.mjs" ] || [ -f "eslint.config.cjs" ] || \
+   [ -f "eslint.config.ts" ] || [ -f "eslint.config.mts" ] || [ -f "eslint.config.cts" ] || \
+   [ -f ".eslintrc.js" ] || [ -f ".eslintrc.cjs" ] || [ -f ".eslintrc.json" ] || \
+   [ -f ".eslintrc.yml" ] || [ -f ".eslintrc.yaml" ] || [ -f ".eslintrc" ]; then
     echo -e "\033[32mA valid ESLint configuration file was found.\033[0m"
 else
     echo -e "\033[41mNo valid ESLint configuration file found. Please initialize your configuration by running: "$ESLINT" --init"
