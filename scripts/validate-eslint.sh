@@ -30,9 +30,9 @@ fi
 if [ -f "node_modules/.bin/eslint" ]; then
     ESLINT="./node_modules/.bin/eslint"
     echo -e "Starting ESLint validation..."
-    echo -e "\033[32mA valid ESlint installation found at $ESLINT\033[0m"
+    echo -e "\e[1;32mA valid ESlint installation found at $ESLINT\e[0m"
 else
-    echo -e "\033[41mNo valid ESlint installation found. Please install ESLint by running: "$INSTALL_CMD""
+    echo -e "\e[1;31mNo valid ESlint installation found. Please install ESLint by running: "$INSTALL_CMD"\e[0m"
     exit 1
 fi
 
@@ -41,9 +41,9 @@ if [ -f "eslint.config.js" ] || [ -f "eslint.config.mjs" ] || [ -f "eslint.confi
    [ -f "eslint.config.ts" ] || [ -f "eslint.config.mts" ] || [ -f "eslint.config.cts" ] || \
    [ -f ".eslintrc.js" ] || [ -f ".eslintrc.cjs" ] || [ -f ".eslintrc.json" ] || \
    [ -f ".eslintrc.yml" ] || [ -f ".eslintrc.yaml" ] || [ -f ".eslintrc" ]; then
-    echo -e "\033[32mA valid ESLint configuration file was found.\033[0m"
+    echo -e "\e[1;32mA valid ESLint configuration file was found.\e[0m"
 else
-    echo -e "\033[41mNo valid ESLint configuration file found. Please initialize your configuration by running: "$ESLINT" --init"
+    echo -e "\e[1;31mNo valid ESLint configuration file found. Please initialize your configuration by running: "$ESLINT" --init\e[0m"
     exit 1
 fi
 
@@ -52,13 +52,12 @@ for FILE in "${STAGED_FILES[@]}"; do
   "$ESLINT" "$FILE"
 
   if [[ "$?" == 0 ]]; then
-    echo -e "\t\033[32mESLint Passed: $FILE\033[0m"
-    echo -e "\033[42mCOMMIT SUCCEEDED\033[0m"
+    echo -e "\e[1;32m $FILE passed.\e[0m"
   else
-    echo -e "\t\033[41mESLint Failed: $FILE\033[0m"
-    echo -e "\033[41mCOMMIT FAILED:\033[0m Your commit contains files that did not pass linting. Please fix the issues and try again."
+    echo -e "\e[1;31m$FILE failed.\e[0m"
+    echo -e "\e[1;31mCOMMIT FAILED: Your commit contains files that did not pass linting. Please fix the issues and try again.\e[0m"
     exit 1
   fi
 done
-
+echo -e "\e[1;32mCOMMIT SUCCEEDED\e[0m"
 exit 0
