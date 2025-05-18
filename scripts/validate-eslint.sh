@@ -32,17 +32,15 @@ if [ -f "node_modules/.bin/eslint" ]; then
     echo -e "Starting ESLint validation..."
     echo -e "\033[32mA valid ESlint installation found at $ESLINT\033[0m"
 else
-    echo -e "\033[41mNo valid ESlint installation found. Please install ESLint by running "$INSTALL_CMD""
+    echo -e "\033[41mNo valid ESlint installation found. Please install ESLint by running: "$INSTALL_CMD""
     exit 1
 fi
 
 # Check for ESLint config files
 if [ -f "eslint.config.js" ] || [ -f ".eslintrc.js" ] || [ -f ".eslintrc.json" ] || [ -f ".eslintrc.yml" ] || [ -f ".eslintrc.yaml" ]; then
-    echo -e "\033[32mESLint config file found\033[0m"
+    echo -e "\033[32mA valid ESLint configuration file was found.\033[0m"
 else
-    echo -e "\033[41mNo ESLint config file found. Please run:\033[0m"
-    echo -e "\033[33m$ESLINT --init\033[0m"
-    echo -e "\033[33mThis will create a configuration file for your project.\033[0m"
+    echo -e "\033[41mNo valid ESLint configuration file found. Please initialize your configuration by running: "$ESLINT" --init"
     exit 1
 fi
 
