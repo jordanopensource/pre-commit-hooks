@@ -3,70 +3,61 @@
 # CREDITS: https://gist.github.com/linhmtran168/2286aeafe747e78f53bf
 # MODIFIED: t.hamoudi
 
-STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E "(.js$|.jsx$|.ts$|.tsx$|.vue$)")
+# Get staged JS/TS/Vue files as an array
+readarray -t STAGED_FILES < <(git diff --cached --name-only --diff-filter=ACM | grep -E "(.js$|.jsx$|.ts$|.tsx$|.vue$)")
 
-if [[ "$STAGED_FILES" = "" ]]; then
+echo -e "Found ${#STAGED_FILES[@]} staged files."
+
+if [[ ${#STAGED_FILES[@]} -eq 0 ]]; then
+  echo "No staged files found, exiting..."
   exit 0
 fi
 
-PASS=true
-
-echo -e "\nValidating Javascript:\n"
-
+echo -e "Trying to detect package manager..."
 # Detect package manager
 if [ -f "pnpm-lock.yaml" ]; then
     PACKAGE_MANAGER="pnpm"
+    INSTALL_CMD="pnpm add -D eslint"
 elif [ -f "yarn.lock" ]; then
     PACKAGE_MANAGER="yarn"
+    INSTALL_CMD="yarn add -D eslint"
 else
     PACKAGE_MANAGER="npm"
+    INSTALL_CMD="npm install --save-dev eslint"
 fi
 
-# First check for local eslint installation
+# Check for local eslint installation
 if [ -f "node_modules/.bin/eslint" ]; then
     ESLINT="./node_modules/.bin/eslint"
-    echo -e "\t\033[32mUsing project's local ESLint installation\033[0m"
+    echo -e "Starting ESLint validation..."
+    echo -e "\e[1;32mA valid ESlint installation found at $ESLINT\e[0m"
 else
-    echo -e "\t\033[33mNo local ESLint installation found. Installing...\033[0m"
-    case $PACKAGE_MANAGER in
-        "pnpm")
-            pnpm add -D eslint
-            ;;
-        "yarn")
-            yarn add -D eslint
-            ;;
-        *)
-            npm install --save-dev eslint
-            ;;
-    esac
-    
-    if [ -f "node_modules/.bin/eslint" ]; then
-        ESLINT="./node_modules/.bin/eslint"
-        echo -e "\t\033[32mSuccessfully installed ESLint locally\033[0m"
-    else
-        echo -e "\t\033[41mFailed to install ESLint locally. Please install it manually using your package manager.\033[0m"
-        exit 1
-    fi
+    echo -e "\e[1;31mNo valid ESlint installation found. Please install ESLint by running: "$INSTALL_CMD"\e[0m"
+    exit 1
 fi
 
-for FILE in $STAGED_FILES; do
-  $ESLINT "$FILE"
+# Check for ESLint config files (both new flat config and legacy formats)
+if [ -f "eslint.config.js" ] || [ -f "eslint.config.mjs" ] || [ -f "eslint.config.cjs" ] || \
+   [ -f "eslint.config.ts" ] || [ -f "eslint.config.mts" ] || [ -f "eslint.config.cts" ] || \
+   [ -f ".eslintrc.js" ] || [ -f ".eslintrc.cjs" ] || [ -f ".eslintrc.json" ] || \
+   [ -f ".eslintrc.yml" ] || [ -f ".eslintrc.yaml" ] || [ -f ".eslintrc" ]; then
+    echo -e "\e[1;32mA valid ESLint configuration file was found.\e[0m"
+else
+    echo -e "\e[1;31mNo valid ESLint configuration file found. Please initialize your configuration by running: "$ESLINT" --init\e[0m"
+    exit 1
+fi
+
+for FILE in "${STAGED_FILES[@]}"; do
+  echo "Checking file: $FILE"
+  "$ESLINT" "$FILE"
 
   if [[ "$?" == 0 ]]; then
-    echo -e "\t\033[32mESLint Passed: $FILE\033[0m"
+    echo -e "\e[1;32m $FILE passed.\e[0m"
   else
-    echo -e "\t\033[41mESLint Failed: $FILE\033[0m"
-    PASS=false
+    echo -e "\e[1;31m$FILE failed.\e[0m"
+    echo -e "\e[1;31mCOMMIT FAILED: Your commit contains files that did not pass linting. Please fix the issues and try again.\e[0m"
+    exit 1
   fi
 done
-
-echo -e "\nJavascript validation completed!\n"
-
-if ! $PASS; then
-  echo -e "\033[41mCOMMIT FAILED:\033[0m Your commit contains files that should pass ESLint but do not. Please fix the ESLint errors and try again."
-  exit 1
-else
-  echo -e "\033[42mCOMMIT SUCCEEDED\033[0m"
-fi
-
-exit $?
+echo -e "\e[1;32mCOMMIT SUCCEEDED\e[0m"
+exit 0
