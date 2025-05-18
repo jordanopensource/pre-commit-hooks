@@ -13,15 +13,44 @@ PASS=true
 
 echo -e "\nValidating Javascript:\n"
 
-# Check for eslint
-which eslint &>/dev/null
-if [[ "$?" == 1 ]]; then
-  echo -e "\t\033[41mPlease install ESlint\033[0m"
-  exit 1
+# Detect package manager
+if [ -f "pnpm-lock.yaml" ]; then
+    PACKAGE_MANAGER="pnpm"
+elif [ -f "yarn.lock" ]; then
+    PACKAGE_MANAGER="yarn"
+else
+    PACKAGE_MANAGER="npm"
+fi
+
+# First check for local eslint installation
+if [ -f "node_modules/.bin/eslint" ]; then
+    ESLINT="./node_modules/.bin/eslint"
+    echo -e "\t\033[32mUsing project's local ESLint installation\033[0m"
+else
+    echo -e "\t\033[33mNo local ESLint installation found. Installing...\033[0m"
+    case $PACKAGE_MANAGER in
+        "pnpm")
+            pnpm add -D eslint
+            ;;
+        "yarn")
+            yarn add -D eslint
+            ;;
+        *)
+            npm install --save-dev eslint
+            ;;
+    esac
+    
+    if [ -f "node_modules/.bin/eslint" ]; then
+        ESLINT="./node_modules/.bin/eslint"
+        echo -e "\t\033[32mSuccessfully installed ESLint locally\033[0m"
+    else
+        echo -e "\t\033[41mFailed to install ESLint locally. Please install it manually using your package manager.\033[0m"
+        exit 1
+    fi
 fi
 
 for FILE in $STAGED_FILES; do
-  eslint "$FILE"
+  $ESLINT "$FILE"
 
   if [[ "$?" == 0 ]]; then
     echo -e "\t\033[32mESLint Passed: $FILE\033[0m"
